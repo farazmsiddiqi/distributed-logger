@@ -62,6 +62,7 @@ func handleRequest(connection net.Conn) {
 		os.Exit(1)
 	}
 
+	//First message from node is its name 
 	node_name := buf[5]
 
 	//Prints the "timestamp - node1 connected" message
@@ -70,7 +71,6 @@ func handleRequest(connection net.Conn) {
 	//Repeatedly reads new events
 	for {
 		event_buf := make([]byte, 1024)
-		//need to clear the buffer here ??
 		_, err := connection.Read(event_buf)
 		if err != nil {
 			fmt.Fprintln(os.Stdout, time.Now().Unix(), " - ", node_name, " disconnected")
@@ -78,9 +78,9 @@ func handleRequest(connection net.Conn) {
 			os.Exit(1)
 		} else {
 			//expecting message from node as
-			// "[time] [eventid]""
+			// "[time] [eventid]"
 			space_ind := bytes.IndexByte(event_buf, byte(' '))
-			fmt.Fprintln(os.Stdout, event_buf[0:space_ind-1], " ", node_name, " ", event_buf[space_ind:])
+			fmt.Fprintln(os.Stdout, /*time:*/event_buf[0:space_ind-1], " ", node_name, " ", /*eventid:*/event_buf[space_ind:])
 		}
 	}
 
