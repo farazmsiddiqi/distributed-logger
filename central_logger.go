@@ -40,6 +40,8 @@ func main() {
 
 		//Send new connections to handler
 		go handleRequest(connection)
+
+		//TODO: potentially end process (ask TA)
 	}
 
 }
@@ -53,6 +55,7 @@ func main() {
 // print "1610688413.743385 - node1 connected" if node connects
 // print "1610688452.211595 - node2 disconnected" if node disconnects
 // / if TCP connection breaks for any reason - reading from connection caused error
+
 func handleRequest(connection net.Conn) {
 	buf := make([]byte, 1024)
 	//Read incoming data into buffer
@@ -63,6 +66,7 @@ func handleRequest(connection net.Conn) {
 	}
 
 	//First message from node is its name 
+	// TODO: index to first space after arg
 	node_name := buf[5]
 
 	//Prints the "timestamp - node1 connected" message
