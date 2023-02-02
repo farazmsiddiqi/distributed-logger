@@ -30,7 +30,6 @@ func (node Node) sendEvent(host string, port string, nodeName string) int {
 
 	// send node name first
 	conn.Write([]byte(f.Sprintf("%s", nodeName)))
-	f.Printf("yaaay")
 
 	if err != nil {
 		f.Printf("fatal error: %s", err)

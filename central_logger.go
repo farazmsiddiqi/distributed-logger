@@ -1,11 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"net"
 	"os"
 	"time"
+	"strings"
+	b "bytes"
 )
 
 const (
@@ -58,6 +59,7 @@ func main() {
 
 func handleRequest(connection net.Conn) {
 	buf := make([]byte, 1024)
+	// buf := b.Buffer
 	//Read incoming data into buffer
 	_, err := connection.Read(buf)
 	if err != nil {
@@ -67,10 +69,12 @@ func handleRequest(connection net.Conn) {
 
 	//First message from node is its name 
 	// TODO: index to first space after arg
-	node_name := string(buf[5])
+	node_name := string(buf[:5])
+	event1 := string(buf[5:])
 
 	//Prints the "timestamp - node1 connected" message
-	fmt.Fprintln(os.Stdout, time.Now().Unix(), " - ", node_name, " connected")
+	fmt.Fprintln(os.Stdout, time.Now().Unix(), "-", node_name, "connected")
+	fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], " ", node_name, " ", event1[strings.Index(event1, " ")+1:])
 
 	//Repeatedly reads new events
 	for {
@@ -83,8 +87,10 @@ func handleRequest(connection net.Conn) {
 		} else {
 			//expecting message from node as
 			// "[time] [eventid]"
-			space_ind := bytes.IndexByte(event_buf, byte(' '))
-			fmt.Fprintln(os.Stdout, /*time:*/event_buf[0:space_ind-1], " ", node_name, " ", /*eventid:*/event_buf[space_ind:])
+			event := string(event_buf)
+			// space_ind := bytes.IndexByte(event_buf, byte(' '))
+			space_ind := strings.Index(event, " ")
+			fmt.Fprintln(os.Stdout, /*time:*/event[0:space_ind-1], " ", node_name, " ", /*eventid:*/event[space_ind:])
 		}
 	}
 
