@@ -74,7 +74,7 @@ func handleRequest(connection net.Conn) {
 
 	//Prints the "timestamp - node1 connected" message
 	fmt.Fprintln(os.Stdout, time.Now().Unix(), "-", node_name, "connected")
-	fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], " ", node_name, " ", event1[strings.Index(event1, " ")+1:])
+	fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], " ", node_name, " ", event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
 
 	//Repeatedly reads new events
 	for {
@@ -90,7 +90,7 @@ func handleRequest(connection net.Conn) {
 			event := string(event_buf)
 			// space_ind := bytes.IndexByte(event_buf, byte(' '))
 			space_ind := strings.Index(event, " ")
-			fmt.Fprintln(os.Stdout, /*time:*/event[0:space_ind-1], " ", node_name, " ", /*eventid:*/event[space_ind:])
+			fmt.Fprintln(os.Stdout, /*time:*/event[0:space_ind-1], " ", node_name, " ", /*eventid:*/event[space_ind:space_ind+64])
 		}
 	}
 
