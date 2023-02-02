@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	HOST = "localhost"
+	HOST = "172.22.156.102"
 	TYPE = "tcp"
 )
 
