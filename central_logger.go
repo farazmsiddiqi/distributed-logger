@@ -67,7 +67,7 @@ func handleRequest(connection net.Conn) {
 
 	//First message from node is its name 
 	// TODO: index to first space after arg
-	node_name := buf[5]
+	node_name := string(buf[5])
 
 	//Prints the "timestamp - node1 connected" message
 	fmt.Fprintln(os.Stdout, time.Now().Unix(), " - ", node_name, " connected")
