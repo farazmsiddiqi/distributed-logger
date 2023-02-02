@@ -32,7 +32,7 @@ func (node Node) sendEvent(host string, port string, nodeName string) int {
 	conn.Write([]byte(f.Sprintf("%s", nodeName)))
 
 	if err != nil {
-		f.Printf("fatal error: %s", err)
+		f.Fprintln(os.Stderr, "fatal err: %s", err.Error())
 		os.Exit(1)
 	}
 
@@ -49,7 +49,7 @@ func sendGenData(conn net.Conn) {
 		text, err := reader.ReadString('\n')
 
 		if err != nil {
-			f.Printf("fatal err: %s", err)
+			f.Fprintln(os.Stderr, "fatal err: %s", err.Error())
 			os.Exit(1)
 		}
 		conn.Write([]byte(f.Sprintf("%s\r\n", text)))
@@ -67,7 +67,7 @@ func main() {
 	*/
 
 	if len(os.Args) < 4 {
-		f.Fprintln(os.Stderr, "Too few arguments")
+		f.Fprintln(os.Stderr, "too many arguments")
 		os.Exit(1)
 	}
 
