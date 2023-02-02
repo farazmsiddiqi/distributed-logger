@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 	"strings"
-	b "bytes"
+	"math"
 )
 
 const (
@@ -68,29 +68,29 @@ func handleRequest(connection net.Conn) {
 	}
 
 	//First message from node is its name 
-	// TODO: index to first space after arg
 	node_name := string(buf[:5])
-	event1 := string(buf[5:])
+	event1 := string(buf[5:]) //TODO: make sure there is an event1 to print 
 
 	//Prints the "timestamp - node1 connected" message
-	fmt.Fprintln(os.Stdout, time.Now().Unix(), "-", node_name, "connected")
-	fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], " ", node_name, " ", event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
+	fmt.Fprintln(os.Stdout, time.Now().UnixNano(), "-", node_name, "connected")
+	fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], node_name, event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
 
 	//Repeatedly reads new events
 	for {
 		event_buf := make([]byte, 1024)
 		_, err := connection.Read(event_buf)
 		if err != nil {
-			fmt.Fprintln(os.Stdout, time.Now().Unix(), " - ", node_name, " disconnected")
-			fmt.Fprintln(os.Stderr, "Error reading: ", err.Error())
-			os.Exit(1)
+			fmt.Fprintln(os.Stdout, time.Now().Unix(), "-", node_name, "disconnected")
+			//fmt.Fprintln(os.Stderr, "Error reading: ", err.Error())
+			break
+			//os.Exit(1) // we don't want to exit 
 		} else {
 			//expecting message from node as
 			// "[time] [eventid]"
 			event := string(event_buf)
 			// space_ind := bytes.IndexByte(event_buf, byte(' '))
 			space_ind := strings.Index(event, " ")
-			fmt.Fprintln(os.Stdout, /*time:*/event[0:space_ind-1], " ", node_name, " ", /*eventid:*/event[space_ind:space_ind+64])
+			fmt.Fprintln(os.Stdout, /*time:*/event[0:space_ind-1], node_name, /*eventid:*/event[space_ind+1:space_ind+64])
 		}
 	}
 
