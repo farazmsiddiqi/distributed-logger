@@ -72,8 +72,11 @@ func handleRequest(connection net.Conn) {
 	event1 := string(buf[5:]) //TODO: make sure there is an event1 to print 
 
 	//Prints the "timestamp - node1 connected" message
-	fmt.Fprintln(os.Stdout, time.Now().UnixNano(), "-", node_name, "connected")
-	fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], node_name, event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
+	fmt.Printf("%f - %s connected", float64(time.Now().UnixNano()) / 1000000000.0, node_name) // find a way to force stdout print
+	//fmt.Fprintln(os.Stdout, float64(time.Now().UnixNano() / 1000000000.0), "-", node_name, "connected")
+	if(event1 != ""){ //event1 exists
+		fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], node_name, event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
+	}
 
 	//Repeatedly reads new events
 	for {
