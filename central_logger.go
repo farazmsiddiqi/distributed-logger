@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 	"strings"
-	"math"
+	"strconv"
 )
 
 const (
@@ -72,19 +72,21 @@ func handleRequest(connection net.Conn) {
 	event1 := string(buf[strings.Index(string(buf[:]), " ")+1:]) //TODO: make sure there is an event1 to print 
 
 	//Prints the "timestamp - node1 connected" message
-	fmt.Printf("%f - %s connected", float64(time.Now().UnixNano()) / 1000000000.0, node_name) // find a way to force stdout print
-	//fmt.Fprintln(os.Stdout, float64(time.Now().UnixNano() / 1000000000.0), "-", node_name, "connected")
+	fmt.Printf("%f - %s connected\n", float64(time.Now().UnixNano()) / 1000000000.0, node_name) // find a way to force stdout print
+	//fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], node_name, event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
 	if(event1 != ""){ //event1 exists
 		fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], node_name, event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
 	}
+
+	f, _ := os.Create("/home/mkolla2/MP0/aux_logger")
+	defer f.Close()
 
 	//Repeatedly reads new events
 	for {
 		event_buf := make([]byte, 1024)
 		_, err := connection.Read(event_buf)
 		if err != nil {
-			fmt.Fprintln(os.Stdout, time.Now().Unix(), "-", node_name, "disconnected")
-			//fmt.Fprintln(os.Stderr, "Error reading: ", err.Error())
+			fmt.Printf("%f - %s disconnected", float64(time.Now().UnixNano()) / 1000000000.0, node_name)
 			break
 			//os.Exit(1) // we don't want to exit 
 		} else {
@@ -93,7 +95,17 @@ func handleRequest(connection net.Conn) {
 			event := string(event_buf)
 			// space_ind := bytes.IndexByte(event_buf, byte(' '))
 			space_ind := strings.Index(event, " ")
-			fmt.Fprintln(os.Stdout, /*time:*/event[0:space_ind-1], node_name, /*eventid:*/event[space_ind+1:space_ind+64])
+			current_time := float64(time.Now().UnixNano()) / 1000000000.0
+			
+			//LOG EVENT ARRIVAL DELAY in AUX_LOG
+			float_generated_time, _ := strconv.ParseFloat(event[0:space_ind-1], 64)
+			string_diff := strconv.FormatFloat(current_time - float_generated_time, 'E', -1, 64)
+			event_arrival_delay := []string{node_name, string_diff, "\n"}
+			
+			f.WriteString(strings.Join(event_arrival_delay, " : "))
+			f.Sync()
+
+			fmt.Fprintln(os.Stdout, /*generated_time:*/event[0:space_ind-1], node_name, /*eventid:*/event[space_ind+1:space_ind+64])
 		}
 	}
 
