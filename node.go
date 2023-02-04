@@ -71,7 +71,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	nodeName := os.Args[1]
+	nodeName := os.Args[1] + " "
 	host := os.Args[2]
 	port := os.Args[3]
 

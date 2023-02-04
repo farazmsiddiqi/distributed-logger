@@ -67,9 +67,9 @@ func handleRequest(connection net.Conn) {
 		os.Exit(1)
 	}
 
-	//First message from node is its name 
-	node_name := string(buf[:5])
-	event1 := string(buf[5:]) //TODO: make sure there is an event1 to print 
+	//First message from node is its name (node1 captured by finding first index of space)
+	node_name := string(buf[:strings.Index(string(buf[:]), " ")])
+	event1 := string(buf[strings.Index(string(buf[:]), " ")+1:]) //TODO: make sure there is an event1 to print 
 
 	//Prints the "timestamp - node1 connected" message
 	fmt.Printf("%f - %s connected", float64(time.Now().UnixNano()) / 1000000000.0, node_name) // find a way to force stdout print
