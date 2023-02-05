@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	HOST = "172.22.156.102"
 	TYPE = "tcp"
 )
 
@@ -21,6 +20,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	HOST, _ := os.Hostname()
 	PORT := os.Args[1]
 
 	// listen on TCP port - accept connection from nodes
@@ -74,11 +74,14 @@ func handleRequest(connection net.Conn) {
 	//Prints the "timestamp - node1 connected" message
 	fmt.Printf("%f - %s connected\n", float64(time.Now().UnixNano()) / 1000000000.0, node_name) // find a way to force stdout print
 	//fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], node_name, event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
-	if(event1 != ""){ //event1 exists
+	if(event1 != "" && len(event1) != 0){ //event1 exists
 		fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], node_name, event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
 	}
 
-	f, _ := os.Create("/home/mkolla2/MP0/aux_logger")
+	f, _ := os.Create("/home/mkolla2/MP0/aux_logger" + "_" + node_name)
+	// prints bandwidth from
+	first_bandwidth_log := "bandwidth for " + node_name + ": " + strconv.Itoa(len(event1) + len(node_name)) + "\n"
+	f.WriteString(first_bandwidth_log)
 	defer f.Close()
 
 	//Repeatedly reads new events
@@ -86,7 +89,7 @@ func handleRequest(connection net.Conn) {
 		event_buf := make([]byte, 1024)
 		_, err := connection.Read(event_buf)
 		if err != nil {
-			fmt.Printf("%f - %s disconnected", float64(time.Now().UnixNano()) / 1000000000.0, node_name)
+			fmt.Printf("%f - %s disconnected\n", float64(time.Now().UnixNano()) / 1000000000.0, node_name)
 			break
 			//os.Exit(1) // we don't want to exit 
 		} else {
@@ -100,7 +103,8 @@ func handleRequest(connection net.Conn) {
 			//LOG EVENT ARRIVAL DELAY in AUX_LOG
 			float_generated_time, _ := strconv.ParseFloat(event[0:space_ind-1], 64)
 			string_diff := strconv.FormatFloat(current_time - float_generated_time, 'E', -1, 64)
-			event_arrival_delay := []string{node_name, string_diff, "\n"}
+			bandwidth := len(string(event[0:space_ind-1]) + string(event[space_ind+1:space_ind+64]))
+			event_arrival_delay := []string{node_name, string_diff, strconv.Itoa(bandwidth), "\n"}
 			
 			f.WriteString(strings.Join(event_arrival_delay, " : "))
 			f.Sync()
