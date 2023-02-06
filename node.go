@@ -28,8 +28,8 @@ func (node Node) sendEvent(host string, port string, nodeName string) int {
 
 	conn, err := net.Dial("tcp", host+":"+port)
 
-	// send node name first
-	conn.Write([]byte(f.Sprintf("%s ", nodeName)))
+	// send node name first - already has space added in main 
+	conn.Write([]byte(f.Sprintf("%s", nodeName)))
 
 	if err != nil {
 		f.Fprintln(os.Stderr, "fatal err: %s", err.Error())
