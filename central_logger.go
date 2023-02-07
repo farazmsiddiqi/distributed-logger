@@ -73,13 +73,13 @@ func handleRequest(connection net.Conn) {
 
 	//Prints the "timestamp - node1 connected" message
 	fmt.Printf("%f - %s connected\n", float64(time.Now().UnixNano()) / 1000000000.0, node_name) // find a way to force stdout print
-	//fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], node_name, event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
-	if(event1 != "" && len(event1) != 0){ //event1 exists
-		fmt.Fprintln(os.Stdout, event1[:strings.Index(event1, " ")], node_name, event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
+	// event1 formatted as "generated_time eventid"
+	if(event1 != "" && len(event1) > 0 && strings.Index(event1, " ") != -1){ //event1 exists
+		fmt.Fprintln(os.Stdout, /*generated_time:*/event1[:strings.Index(event1, " ")], node_name, event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
 	}
 
 	f, _ := os.Create("/home/mkolla2/MP0/aux_logger" + "_" + node_name)
-	// prints bandwidth from
+	// prints bandwidth from length of messages from server 
 	first_bandwidth_log := "bandwidth for " + node_name + ": " + strconv.Itoa(len(event1) + len(node_name)) + "\n"
 	f.WriteString(first_bandwidth_log)
 	defer f.Close()
