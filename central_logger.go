@@ -93,14 +93,14 @@ func handleRequest(connection net.Conn) {
 			// "[time] [eventid]"
 			event := string(event_buf)
 			space_ind := strings.Index(event, " ")
-			current_time := time.Now()
+			current_time := time.Now().Format("150405")
 			float_current_time := float64(time.Now().UnixNano()) / 1000000000.0
 			
 			//LOG EVENT ARRIVAL DELAY in AUX_LOG
 			float_generated_time, _ := strconv.ParseFloat(event[0:space_ind-1], 64)
 			string_diff := strconv.FormatFloat(float_current_time - float_generated_time, 'E', -1, 64)
 			bandwidth := len(string(event[0:space_ind-1]) + string(event[space_ind+1:space_ind+64]))
-			event_arrival_delay := []string{node_name, string_diff, strconv.Itoa(bandwidth), current_time.String(), "\n"}
+			event_arrival_delay := []string{node_name, string_diff, strconv.Itoa(bandwidth), current_time, "\n"}
 			
 			f.WriteString(strings.Join(event_arrival_delay, ","))
 			f.Sync()
