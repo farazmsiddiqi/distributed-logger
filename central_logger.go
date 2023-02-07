@@ -7,6 +7,7 @@ import (
 	"time"
 	"strings"
 	"strconv"
+	"bufio"
 )
 
 const (
@@ -59,9 +60,8 @@ func main() {
 
 func handleRequest(connection net.Conn) {
 	buf := make([]byte, 1024)
-	// buf := b.Buffer
 	//Read incoming data into buffer
-	_, err := connection.Read(buf)
+	buf, err := bufio.NewReader(connection).ReadBytes('\n')
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error reading: ", err.Error())
 		os.Exit(1)
@@ -69,18 +69,14 @@ func handleRequest(connection net.Conn) {
 
 	//First message from node is its name (node1 captured by finding first index of space)
 	node_name := string(buf[:strings.Index(string(buf[:]), " ")])
-	event1 := string(buf[strings.Index(string(buf[:]), " ")+1:]) //TODO: make sure there is an event1 to print 
 
 	//Prints the "timestamp - node1 connected" message
 	fmt.Printf("%f - %s connected\n", float64(time.Now().UnixNano()) / 1000000000.0, node_name) // find a way to force stdout print
-	// event1 formatted as "generated_time eventid"
-	if(event1 != "" && len(event1) > 0 && strings.Index(event1, " ") != -1){ //event1 exists
-		fmt.Fprintln(os.Stdout, /*generated_time:*/event1[:strings.Index(event1, " ")], node_name, event1[strings.Index(event1, " ")+1:strings.Index(event1, " ")+1+64])
-	}
 
-	f, _ := os.Create("/home/mkolla2/MP0/aux_logger" + "_" + node_name)
-	// prints bandwidth from length of messages from server 
-	first_bandwidth_log := "bandwidth for " + node_name + ": " + strconv.Itoa(len(event1) + len(node_name)) + "\n"
+
+	f, _ := os.Create("aux_logger" + "_" + node_name)
+	// prints bandwidth from length of initial message from server + time 
+	first_bandwidth_log := "bandwidth for " + node_name + ": " + strconv.Itoa(len(node_name)) + " " + time.Now().String() + "\n"
 	f.WriteString(first_bandwidth_log)
 	defer f.Close()
 
@@ -96,17 +92,17 @@ func handleRequest(connection net.Conn) {
 			//expecting message from node as
 			// "[time] [eventid]"
 			event := string(event_buf)
-			// space_ind := bytes.IndexByte(event_buf, byte(' '))
 			space_ind := strings.Index(event, " ")
-			current_time := float64(time.Now().UnixNano()) / 1000000000.0
+			current_time := time.Now()
+			float_current_time := float64(time.Now().UnixNano()) / 1000000000.0
 			
 			//LOG EVENT ARRIVAL DELAY in AUX_LOG
 			float_generated_time, _ := strconv.ParseFloat(event[0:space_ind-1], 64)
-			string_diff := strconv.FormatFloat(current_time - float_generated_time, 'E', -1, 64)
+			string_diff := strconv.FormatFloat(float_current_time - float_generated_time, 'E', -1, 64)
 			bandwidth := len(string(event[0:space_ind-1]) + string(event[space_ind+1:space_ind+64]))
-			event_arrival_delay := []string{node_name, string_diff, strconv.Itoa(bandwidth), "\n"}
+			event_arrival_delay := []string{node_name, string_diff, strconv.Itoa(bandwidth), current_time.String(), "\n"}
 			
-			f.WriteString(strings.Join(event_arrival_delay, " : "))
+			f.WriteString(strings.Join(event_arrival_delay, ","))
 			f.Sync()
 
 			fmt.Fprintln(os.Stdout, /*generated_time:*/event[0:space_ind-1], node_name, /*eventid:*/event[space_ind+1:space_ind+64])
