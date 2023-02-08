@@ -13,6 +13,10 @@ on the central logger VM (sp23-cs425-3101.cs.illinois.edu) run
 on each of your node VMs (sp23-cs425-3102.cs.illinois.edu onward) run 
 `python3 -u generator.py [hz] | go run node.go [node_name] [address of vm] [same port_number as before!!]`
 
+FOR EXAMPLE:
+on your central logger VM run `go run central_logger.go 1234`
+on your node VMs run `python3 -u generator.py 0.1 | go run node.go node1 172.22.156.102 1234`
+
 use CTRL+C to close each process 
 
 # Description of how you are measuring the delay and bandwidth:
