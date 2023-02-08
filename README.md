@@ -8,9 +8,11 @@ Repository + version number: https://gitlab.engr.illinois.edu/mkolla2/cs425-mp0/
 
 # Instructions for building and running your code:
 on the central logger VM (sp23-cs425-3101.cs.illinois.edu) run 
-go run central_logger.go [port_number]
+`go run central_logger.go [port_number]`
+
 on each of your node VMs (sp23-cs425-3102.cs.illinois.edu onward) run 
-python3 -u generator.py [hz] | go run node.go [node_name] [address of vm] [same port_number as before!!]
+`python3 -u generator.py [hz] | go run node.go [node_name] [address of vm] [same port_number as before!!]`
+
 use CTRL+C to close each process 
 
 # Description of how you are measuring the delay and bandwidth:
